@@ -1,7 +1,7 @@
 find_package(Qt4 REQUIRED)
 
-set(gui_SOURCES main.cpp mainwindow.cpp rendertriangulation.cpp tmap.cpp)
-set(gui_HEADERS mainwindow.h rendertriangulation.h tmap.h)
+set(gui_SOURCES main.cpp mainwindow.cpp rendertriangulation.cpp triangulatedmap.cpp)
+set(gui_HEADERS mainwindow.h rendertriangulation.h triangulatedmap.h)
 qt4_wrap_cpp(gui_HEADERS_MOC ${gui_HEADERS})
 
 include(${QT_USE_FILE})

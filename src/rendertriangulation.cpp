@@ -1,6 +1,7 @@
 #include <QtGui>
 
 #include "rendertriangulation.h"
+#include <limits>
 
 RenderTriangulation::RenderTriangulation(QWidget *parent)
     : QWidget(parent)
@@ -32,6 +33,9 @@ void RenderTriangulation::setTriangulation(QString path)
 
 void RenderTriangulation::renderEPS(QString path)
 {
+    if (tmap_wrapper.faces.empty())
+        return;
+
     // Thanks to http://www.qtcentre.org/threads/23238-QPainting-to-an-eps-file
     // Setup printer
     QPrinter printer(QPrinter::HighResolution);
@@ -50,7 +54,7 @@ void RenderTriangulation::renderEPS(QString path)
 }
 
 void RenderTriangulation::render(QPaintDevice *device, float margin) {
-    if (!tmap_wrapper.tmap)
+    if (tmap_wrapper.faces.empty())
         return;
 
     float scale = std::min(float(device->width()  - margin*2) / tmap_wrapper.xrange,
@@ -66,20 +70,18 @@ void RenderTriangulation::render(QPaintDevice *device, float margin) {
     painter.setPen(pen);
 
     QPoint triangle[3];
-    Face *f = tmap_wrapper.tmap->faces;
-    for (int i = 0; i < tmap_wrapper.tmap->n_faces; i++, f++) {
-        if (f->ignore())
-            continue;
-
-        int grey_intensity = 255 * (tmap_wrapper.max_weight - f->weight) / tmap_wrapper.max_weight;
+    
+    foreach(const TriangulatedMap::Face &face, tmap_wrapper.faces) {
+        int grey_intensity = 255 * (tmap_wrapper.max_weight - face.weight) / tmap_wrapper.max_weight;
         QColor color(grey_intensity, grey_intensity, grey_intensity);
         QBrush brush(color);
         painter.setBrush(brush);
 
-        for (int j = 0; j < 3; j++) {
-            Vertex *v = f->vertex(j);
-            triangle[j].setX((v->x - tmap_wrapper.xmin) * scale + xoffset);
-            triangle[j].setY((v->y - tmap_wrapper.ymin) * scale + yoffset);
+        QPointF vertices[3] = { face.u, face.v, face.w };
+        for (int i = 0; i < 3; i++) {
+            QPointF v = vertices[i];
+            triangle[i].setX((v.x() - tmap_wrapper.xmin) * scale + xoffset);
+            triangle[i].setY((v.y() - tmap_wrapper.ymin) * scale + yoffset);
         }
         painter.drawConvexPolygon(triangle, 3);
     }
@@ -87,44 +89,38 @@ void RenderTriangulation::render(QPaintDevice *device, float margin) {
 
 RenderTriangulation::TMapWrapper::TMapWrapper(QString path)
 {
-    tmap = 0;
     setMap(path);
 }
 
 void RenderTriangulation::TMapWrapper::setMap(QString path) {
-    if (tmap) {
-        tmap_free(tmap);
-        tmap = 0;
-    }
-
     if (path.isEmpty())
         return;
 
-    FILE *fin = fopen(path.toStdString().c_str(), "r");
-    tmap = tmap_readin(fin);
-    fclose(fin);
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
 
-    Vertex *v = tmap->vertices + 1;
-    xmin = xmax = v->x;
-    ymin = ymax = v->y;
-    for (int i = 1; i < tmap->n_vertices; i++, v++) {
-        if (v->x < xmin) xmin = v->x;
-        if (v->x > xmax) xmax = v->x;
-        if (v->y < ymin) ymin = v->y;
-        if (v->y > ymax) ymax = v->y;
+    QTextStream in(&file);
+    TriangulatedMap tmap;
+    in >> tmap;
+    faces = tmap.faces;
+
+    xmin = ymin = std::numeric_limits<qreal>::max();
+    xmax = ymax = std::numeric_limits<qreal>::min();
+    max_weight = std::numeric_limits<qreal>::min();
+    foreach(const TriangulatedMap::Face &face, faces) {
+        QPointF vertices[3] = { face.u, face.v, face.w };
+        for (int i = 0; i < 3; i++) {
+            qreal x = vertices[i].x();
+            qreal y = vertices[i].y();
+            if (x < xmin) xmin = x;
+            if (x > xmax) xmax = x;
+            if (y < ymin) ymin = y;
+            if (y > ymax) ymax = y;
+        }
+        if (max_weight < face.weight)
+            max_weight = face.weight;
     }
     xrange = xmax - xmin;
     yrange = ymax - ymin;
-
-    // Find the maximum weight of a face
-    Face *f = tmap->faces + 1;
-    max_weight = std::numeric_limits<float>::min();
-    for (int i = 1; i < tmap->n_faces; i++, f++)
-        if (!f->ignore() && max_weight < f->weight)
-            max_weight = f->weight;
-}
-
-RenderTriangulation::TMapWrapper::~TMapWrapper()
-{
-    setMap();
 }

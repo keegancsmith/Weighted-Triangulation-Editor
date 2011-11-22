@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tmap.h"
+#include "triangulatedmap.h"
 
 #include <QWidget>
 #include <QPaintDevice>
@@ -13,13 +13,12 @@ private:
     class TMapWrapper {
     public:
         TMapWrapper(QString path = QString());
-        ~TMapWrapper();
         void setMap(QString path = QString());
 
-        TriangulatedMap *tmap;
-        float xmin, xmax, ymin, ymax;
-        float xrange, yrange;
-        float max_weight;
+        QVector<TriangulatedMap::Face> faces;
+        qreal xmin, xmax, ymin, ymax;
+        qreal xrange, yrange;
+        qreal max_weight;
     };
 
 public:
