@@ -70,7 +70,7 @@ void RenderTriangulation::render(QPaintDevice *device, float margin) {
     painter.setPen(pen);
 
     QPoint triangle[3];
-    
+
     foreach(const TriangulatedMap::Face &face, tmap_wrapper.faces) {
         int grey_intensity = 255 * (tmap_wrapper.max_weight - face.weight) / tmap_wrapper.max_weight;
         QColor color(grey_intensity, grey_intensity, grey_intensity);
