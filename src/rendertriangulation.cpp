@@ -8,6 +8,8 @@ RenderTriangulation::RenderTriangulation(QWidget *parent)
 {
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
+    setMouseTracking(true);
+    last_tooltip_idx = -1;
 }
 
 QSize RenderTriangulation::minimumSizeHint() const
@@ -22,13 +24,65 @@ QSize RenderTriangulation::sizeHint() const
 
 void RenderTriangulation::paintEvent(QPaintEvent*)
 {
-    render(this, 5);
+    render(this, widget_margin);
 }
 
 void RenderTriangulation::setTriangulation(QString path)
 {
     tmap_wrapper.setMap(path);
     repaint();
+}
+
+int RenderTriangulation::face_at_point(QPoint pos)
+{
+    if (tmap_wrapper.faces.empty())
+        return -1;
+
+    RenderInfo ri = calc_render_info(this, widget_margin);
+    QPointF p((pos.x() - ri.xoffset) / ri.scale + tmap_wrapper.xmin,
+              (pos.y() - ri.yoffset) / ri.scale + tmap_wrapper.ymin);
+
+    return face_containing_point(tmap_wrapper.faces, p);
+}
+
+bool RenderTriangulation::event(QEvent *event)
+{
+    if (event->type() == QEvent::ToolTip) {
+        QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+        int index = face_at_point(helpEvent->pos());
+        if (index == -1) {
+            QToolTip::hideText();
+            event->ignore();
+        } else {
+            if (last_tooltip_idx != -1 && last_tooltip_idx != index)
+                QToolTip::hideText();
+            qreal weight = tmap_wrapper.faces[index].weight;
+            QToolTip::showText(helpEvent->globalPos(),
+                               QString("%1").arg(weight));
+        }
+        last_tooltip_idx = index;
+        return true;
+    }
+    return QWidget::event(event);
+}
+
+void RenderTriangulation::wheelEvent(QWheelEvent *event)
+{
+    int idx = face_at_point(event->pos());
+    if (idx < 0)
+        return;
+
+    qreal weight_delta = (event->delta() / 120.0) * tmap_wrapper.max_weight / 15.0;
+    qreal new_weight = tmap_wrapper.faces[idx].weight + weight_delta;
+    if (new_weight < 0)
+        new_weight = 0;
+    else if (new_weight > tmap_wrapper.max_weight)
+        new_weight = tmap_wrapper.max_weight;
+
+    if (new_weight != tmap_wrapper.faces[idx].weight) {
+        tmap_wrapper.faces[idx].weight = new_weight;
+        repaint();
+    }
 }
 
 void RenderTriangulation::renderEPS(QString path)
@@ -41,7 +95,6 @@ void RenderTriangulation::renderEPS(QString path)
     QPrinter printer(QPrinter::HighResolution);
     printer.setOutputFormat(QPrinter::PostScriptFormat);
     printer.setOutputFileName(path);
-    //printer.setFullPage(true);
 
     // Adjust paper size depending on tmap's bounding box
     QSizeF size(tmap_wrapper.xrange, tmap_wrapper.yrange);
@@ -50,17 +103,25 @@ void RenderTriangulation::renderEPS(QString path)
     printer.setPaperSize(size, QPrinter::Point);
     printer.setPageMargins(0, 0, 0, 0, QPrinter::Point);
 
-    render(&printer, 50);
+    render(&printer, eps_margin);
+}
+
+RenderTriangulation::RenderInfo
+RenderTriangulation::calc_render_info(QPaintDevice *device, float margin)
+{
+    RenderInfo ri;
+    ri.scale = std::min(float(device->width()  - margin * 2) / tmap_wrapper.xrange,
+                        float(device->height() - margin * 2) / tmap_wrapper.yrange);
+    ri.xoffset = (device->width()  - tmap_wrapper.xrange * ri.scale) / 2;
+    ri.yoffset = (device->height() - tmap_wrapper.yrange * ri.scale) / 2;
+    return ri;
 }
 
 void RenderTriangulation::render(QPaintDevice *device, float margin) {
     if (tmap_wrapper.faces.empty())
         return;
 
-    float scale = std::min(float(device->width()  - margin*2) / tmap_wrapper.xrange,
-                           float(device->height() - margin*2) / tmap_wrapper.yrange);
-    float xoffset = (device->width()  - tmap_wrapper.xrange * scale) / 2;
-    float yoffset = (device->height() - tmap_wrapper.yrange * scale) / 2;
+    RenderInfo ri = calc_render_info(device, margin);
 
     QPainter painter(device);
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -80,8 +141,8 @@ void RenderTriangulation::render(QPaintDevice *device, float margin) {
         QPointF vertices[3] = { face.u, face.v, face.w };
         for (int i = 0; i < 3; i++) {
             QPointF v = vertices[i];
-            triangle[i].setX((v.x() - tmap_wrapper.xmin) * scale + xoffset);
-            triangle[i].setY((v.y() - tmap_wrapper.ymin) * scale + yoffset);
+            triangle[i].setX((v.x() - tmap_wrapper.xmin) * ri.scale + ri.xoffset);
+            triangle[i].setY((v.y() - tmap_wrapper.ymin) * ri.scale + ri.yoffset);
         }
         painter.drawConvexPolygon(triangle, 3);
     }

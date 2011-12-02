@@ -2,6 +2,7 @@
 
 #include <QtGlobal>
 #include <limits>
+#include <complex>
 
 QTextStream &operator >> (QTextStream & in, TriangulatedMap & tmap) {
     const qreal infinity = std::numeric_limits<qreal>::infinity();
@@ -47,4 +48,42 @@ QTextStream &operator >> (QTextStream & in, TriangulatedMap & tmap) {
         if (f.weight != infinity)
             tmap.faces.push_back(f);
     }
+}
+
+namespace CompGeom {
+    typedef std::complex<qreal> point;
+    const qreal EPS = 1e-15;
+
+    qreal cross(point a, point b) {
+        return std::imag(a * std::conj(b));
+    }
+
+    int ccw(point a, point b, point c) {
+        qreal cr = cross(b - a, c - a);
+        if(std::abs(cr) <= EPS)
+            return 0;
+
+        return cr > 0 ? 1 : -1;
+    }
+
+    bool point_in_face(const TriangulatedMap::Face &f, const QPointF &p_) {
+        point a(f.u.x(), f.u.y());
+        point b(f.v.x(), f.v.y());
+        point c(f.w.x(), f.w.y());
+        point p(p_.x(), p_.y());
+
+        int side1 = ccw(p, a, b);
+        int side2 = ccw(p, b, c);
+        int side3 = ccw(p, c, a);
+
+        return side1 == side2 && side2 == side3;
+    }
+}
+
+int face_containing_point(const QVector<TriangulatedMap::Face> &faces, QPointF p) {
+    for (int i = 0; i < faces.size(); i++) {
+        if (CompGeom::point_in_face(faces[i], p))
+            return i;
+    }
+    return -1;
 }

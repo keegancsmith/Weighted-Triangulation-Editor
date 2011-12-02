@@ -21,6 +21,10 @@ private:
         qreal max_weight;
     };
 
+    struct RenderInfo {
+        qreal scale, xoffset, yoffset;
+    };
+
 public:
     RenderTriangulation(QWidget *parent = 0);
 
@@ -32,8 +36,18 @@ public slots:
     void renderEPS(QString path);
 
 protected:
+    bool event(QEvent *event);
     void paintEvent(QPaintEvent *event);
+    void wheelEvent(QWheelEvent *event);
+
+private:
+    static const float widget_margin = 5;
+    static const float eps_margin = 50;
+
+    RenderInfo calc_render_info(QPaintDevice *device, float margin);
     void render(QPaintDevice *device, float margin);
+    int face_at_point(QPoint pos);
 
     TMapWrapper tmap_wrapper;
+    int last_tooltip_idx;
 };
