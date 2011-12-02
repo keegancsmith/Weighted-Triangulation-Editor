@@ -16,6 +16,8 @@ struct TriangulatedMap
 };
 
 
+bool operator<(const QPointF & a, const QPointF & b);
 QTextStream &operator >> (QTextStream &, TriangulatedMap &);
+QTextStream &operator << (QTextStream &, TriangulatedMap &);
 
 int face_containing_point(const QVector<TriangulatedMap::Face> &, QPointF);

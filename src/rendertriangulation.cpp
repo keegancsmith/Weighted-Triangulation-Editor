@@ -85,6 +85,18 @@ void RenderTriangulation::wheelEvent(QWheelEvent *event)
     }
 }
 
+void RenderTriangulation::save(QString path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+        return;
+
+    QTextStream out(&file);
+    TriangulatedMap tmap;
+    tmap.faces = tmap_wrapper.faces;
+    out << tmap;
+}
+
 void RenderTriangulation::renderEPS(QString path)
 {
     if (tmap_wrapper.faces.empty())

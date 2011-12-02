@@ -33,6 +33,7 @@ public:
 
 public slots:
     void setTriangulation(QString path);
+    void save(QString path);
     void renderEPS(QString path);
 
 protected:

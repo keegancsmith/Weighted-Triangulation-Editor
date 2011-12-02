@@ -13,6 +13,7 @@ public:
 
 private slots:
     void open();
+    void saveAs();
     void renderEPS();
 
 private:
@@ -22,6 +23,7 @@ private:
     RenderTriangulation *renderTriangulation;
     QString filename;
     QAction *openAct;
+    QAction *saveAsAct;
     QAction *renderEPSAct;
     QAction *exitAct;
 };

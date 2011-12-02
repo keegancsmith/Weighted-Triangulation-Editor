@@ -30,6 +30,18 @@ void MainWindow::open()
     }
 }
 
+void MainWindow::saveAs()
+{
+    QString path = QFileDialog::getSaveFileName(
+        this, tr("Save EPS"), filename,
+        tr("Encapsulated Postscript (*.eps)"));
+
+    if (!path.isEmpty()) {
+        filename = path;
+        renderTriangulation->save(path);
+    }
+}
+
 void MainWindow::renderEPS()
 {
     QString path;
@@ -53,6 +65,11 @@ void MainWindow::createActions()
     openAct->setStatusTip(tr("Open an existing file"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
+    saveAsAct = new QAction(tr("&Save As..."), this);
+    saveAsAct->setShortcuts(QKeySequence::Save);
+    saveAsAct->setStatusTip(tr("Save to a file"));
+    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
+
     renderEPSAct = new QAction(tr("&Render EPS..."), this);
     renderEPSAct->setShortcut(tr("Ctrl+R"));
     renderEPSAct->setStatusTip(tr("Render the map to an EPS file"));
@@ -68,6 +85,7 @@ void MainWindow::createMenus()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(openAct);
+    fileMenu->addAction(saveAsAct);
     fileMenu->addAction(renderEPSAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
