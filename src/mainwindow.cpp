@@ -6,10 +6,16 @@
 
 MainWindow::MainWindow()
 {
-    pointEditor = new PointEditor(this);
-    renderTriangulation = new RenderTriangulation(this);
+    pointEditor = new PointEditor;
+    renderTriangulation = new RenderTriangulation;
 
-    setCentralWidget(renderTriangulation);
+    stackedLayout = new QStackedLayout;
+    stackedLayout->addWidget(pointEditor);
+    stackedLayout->addWidget(renderTriangulation);
+
+    QWidget *centralWidget = new QWidget(this);
+    centralWidget->setLayout(stackedLayout);
+    setCentralWidget(centralWidget);
 
     setWindowTitle(tr("Weighted Triangulation Editor"));
 
@@ -154,7 +160,7 @@ void MainWindow::setPointEditorMode(bool enabled)
 {
     savePointSetAsAct->setEnabled(enabled);
     if (enabled)
-        setCentralWidget(pointEditor);
+        stackedLayout->setCurrentWidget(pointEditor);
 }
 
 void MainWindow::setTriangulationEditorMode(bool enabled)
@@ -162,5 +168,5 @@ void MainWindow::setTriangulationEditorMode(bool enabled)
     saveTriangulationAsAct->setEnabled(enabled);
     renderTriangulationEPSAct->setEnabled(enabled);
     if (enabled)
-        setCentralWidget(renderTriangulation);
+        stackedLayout->setCurrentWidget(renderTriangulation);
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QStackedLayout>
 
 class PointEditor;
 class RenderTriangulation;
@@ -44,5 +45,6 @@ private:
     QAction *renderTriangulationEPSAct;
 
     // Misc
+    QStackedLayout *stackedLayout;
     QAction *exitAct;
 };
