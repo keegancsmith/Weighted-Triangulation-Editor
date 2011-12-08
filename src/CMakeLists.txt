@@ -4,12 +4,16 @@ set(wte_SOURCES
   main.cpp
   mainwindow.cpp
   rendertriangulation.cpp
-  triangulatedmap.cpp)
+  triangulatedmap.cpp
+  pointeditor.cpp
+)
 
 set(wte_HEADERS
   mainwindow.h
   rendertriangulation.h
-  triangulatedmap.h)
+  triangulatedmap.h
+  pointeditor.h
+)
 
 qt4_wrap_cpp(wte_HEADERS_MOC ${wte_HEADERS})
 

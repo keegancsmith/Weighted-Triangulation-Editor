@@ -1,17 +1,53 @@
 #include <QtGui>
 
+#include "pointeditor.h"
 #include "rendertriangulation.h"
 #include "mainwindow.h"
 
 MainWindow::MainWindow()
 {
-    renderTriangulation = new RenderTriangulation;
+    pointEditor = new PointEditor(this);
+    renderTriangulation = new RenderTriangulation(this);
+
     setCentralWidget(renderTriangulation);
 
-    setWindowTitle(tr("Weighted Triangulation Viewer"));
+    setWindowTitle(tr("Weighted Triangulation Editor"));
 
     createActions();
     createMenus();
+
+    setPointEditorMode(false);
+    setTriangulationEditorMode(false);
+}
+
+void MainWindow::newPointSet()
+{
+    pointEditor->clear();
+}
+
+void MainWindow::openPointSet()
+{
+    QString path = QFileDialog::getOpenFileName(
+        this, tr("Open Point Set"), point_path,
+        tr("Point Set Files (*.node)"));
+
+    if (!path.isEmpty()) {
+        enablePointEditor();
+        point_path = path;
+        pointEditor->open(path);
+    }
+}
+
+void MainWindow::savePointSetAs()
+{
+    QString path = QFileDialog::getSaveFileName(
+        this, tr("Save Point Set"), point_path,
+        tr("Point Set Files (*.node)"));
+
+    if (!path.isEmpty()) {
+        point_path = path;
+        pointEditor->save(path);
+    }
 }
 
 void MainWindow::openTriangulation()
@@ -21,6 +57,7 @@ void MainWindow::openTriangulation()
         tr("Weighted Triangulation Files (*.txt)"));
 
     if (!path.isEmpty()) {
+        enableTriangulationEditor();
         triangulation_path = path;
         renderTriangulation->setTriangulation(path);
     }
@@ -56,19 +93,29 @@ void MainWindow::renderTriangulationEPS()
 
 void MainWindow::createActions()
 {
+    newPointSetAct = new QAction(tr("New Point Set..."), this);
+    newPointSetAct->setStatusTip(tr("Create a new point set"));
+    connect(newPointSetAct, SIGNAL(triggered()), this, SLOT(newPointSet()));
+
+    openPointSetAct = new QAction(tr("Open Point Set..."), this);
+    openPointSetAct->setStatusTip(tr("Open an existing point set file"));
+    connect(openPointSetAct, SIGNAL(triggered()), this, SLOT(openPointSet()));
+
+    savePointSetAsAct = new QAction(tr("Save Point Set As..."), this);
+    savePointSetAsAct->setStatusTip(tr("Save Point Set to a file"));
+    connect(savePointSetAsAct, SIGNAL(triggered()), this, SLOT(savePointSetAs()));
+
     openTriangulationAct = new QAction(tr("Open Triangulation..."), this);
     openTriangulationAct->setStatusTip(tr("Open an existing weighted triangulation file"));
     connect(openTriangulationAct, SIGNAL(triggered()), this, SLOT(openTriangulation()));
 
     saveTriangulationAsAct = new QAction(tr("Save Triangulation As..."), this);
     saveTriangulationAsAct->setStatusTip(tr("Save Triangulation to a file"));
-    saveTriangulationAsAct->setEnabled(false);
     connect(saveTriangulationAsAct, SIGNAL(triggered()), this, SLOT(saveTriangulationAs()));
 
     renderTriangulationEPSAct = new QAction(tr("&Render EPS..."), this);
     renderTriangulationEPSAct->setShortcut(tr("Ctrl+R"));
     renderTriangulationEPSAct->setStatusTip(tr("Render the map to an EPS file"));
-    renderTriangulationEPSAct->setEnabled(false);
     connect(renderTriangulationEPSAct, SIGNAL(triggered()), this, SLOT(renderTriangulationEPS()));
 
     exitAct = new QAction(tr("E&xit"), this);
@@ -80,9 +127,40 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(newPointSetAct);
+    fileMenu->addAction(openPointSetAct);
+    fileMenu->addAction(savePointSetAsAct);
+    fileMenu->addSeparator();
     fileMenu->addAction(openTriangulationAct);
     fileMenu->addAction(saveTriangulationAsAct);
     fileMenu->addAction(renderTriangulationEPSAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
+}
+
+void MainWindow::enablePointEditor()
+{
+    setTriangulationEditorMode(false);
+    setPointEditorMode(true);
+}
+
+void MainWindow::enableTriangulationEditor()
+{
+    setPointEditorMode(false);
+    setTriangulationEditorMode(true);
+}
+
+void MainWindow::setPointEditorMode(bool enabled)
+{
+    savePointSetAsAct->setEnabled(enabled);
+    if (enabled)
+        setCentralWidget(pointEditor);
+}
+
+void MainWindow::setTriangulationEditorMode(bool enabled)
+{
+    saveTriangulationAsAct->setEnabled(enabled);
+    renderTriangulationEPSAct->setEnabled(enabled);
+    if (enabled)
+        setCentralWidget(renderTriangulation);
 }

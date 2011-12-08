@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 
+class PointEditor;
 class RenderTriangulation;
 
 class MainWindow : public QMainWindow
@@ -12,6 +13,10 @@ public:
     MainWindow();
 
 private slots:
+    void newPointSet();
+    void openPointSet();
+    void savePointSetAs();
+
     void openTriangulation();
     void saveTriangulationAs();
     void renderTriangulationEPS();
@@ -19,6 +24,17 @@ private slots:
 private:
     void createActions();
     void createMenus();
+    void enablePointEditor();
+    void enableTriangulationEditor();
+    void setPointEditorMode(bool);
+    void setTriangulationEditorMode(bool);
+
+    // Point Editor
+    PointEditor *pointEditor;
+    QString point_path;
+    QAction *newPointSetAct;
+    QAction *openPointSetAct;
+    QAction *savePointSetAsAct;
 
     // Triangulation Editor
     RenderTriangulation *renderTriangulation;
