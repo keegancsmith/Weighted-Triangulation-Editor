@@ -3,8 +3,7 @@
 #include "rendertriangulation.h"
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QString filename)
-    : filename(filename)
+MainWindow::MainWindow()
 {
     renderTriangulation = new RenderTriangulation;
     setCentralWidget(renderTriangulation);
@@ -13,40 +12,37 @@ MainWindow::MainWindow(QString filename)
 
     createActions();
     createMenus();
-
-    if (!filename.isEmpty())
-        renderTriangulation->setTriangulation(filename);
 }
 
-void MainWindow::open()
+void MainWindow::openTriangulation()
 {
     QString path = QFileDialog::getOpenFileName(
-        this, tr("Open Weighted Region"), filename,
+        this, tr("Open Weighted Region"), triangulation_path,
         tr("Weighted Triangulation Files (*.txt)"));
 
     if (!path.isEmpty()) {
-        filename = path;
-        renderTriangulation->setTriangulation(filename);
+        triangulation_path = path;
+        renderTriangulation->setTriangulation(path);
     }
 }
 
-void MainWindow::saveAs()
+void MainWindow::saveTriangulationAs()
 {
     QString path = QFileDialog::getSaveFileName(
-        this, tr("Save EPS"), filename,
-        tr("Encapsulated Postscript (*.eps)"));
+        this, tr("Save Triangulation As"), triangulation_path,
+        tr("Weighted Triangulation Files (*.txt)"));
 
     if (!path.isEmpty()) {
-        filename = path;
+        triangulation_path = path;
         renderTriangulation->save(path);
     }
 }
 
-void MainWindow::renderEPS()
+void MainWindow::renderTriangulationEPS()
 {
     QString path;
-    if (!filename.isEmpty()) {
-        QFileInfo info(filename);
+    if (!triangulation_path.isEmpty()) {
+        QFileInfo info(triangulation_path);
         path = info.dir().path() + "/" + info.completeBaseName() + ".eps";
     }
 
@@ -60,20 +56,20 @@ void MainWindow::renderEPS()
 
 void MainWindow::createActions()
 {
-    openAct = new QAction(tr("&Open..."), this);
-    openAct->setShortcuts(QKeySequence::Open);
-    openAct->setStatusTip(tr("Open an existing file"));
-    connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
+    openTriangulationAct = new QAction(tr("Open Triangulation..."), this);
+    openTriangulationAct->setStatusTip(tr("Open an existing weighted triangulation file"));
+    connect(openTriangulationAct, SIGNAL(triggered()), this, SLOT(openTriangulation()));
 
-    saveAsAct = new QAction(tr("&Save As..."), this);
-    saveAsAct->setShortcuts(QKeySequence::Save);
-    saveAsAct->setStatusTip(tr("Save to a file"));
-    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
+    saveTriangulationAsAct = new QAction(tr("Save Triangulation As..."), this);
+    saveTriangulationAsAct->setStatusTip(tr("Save Triangulation to a file"));
+    saveTriangulationAsAct->setEnabled(false);
+    connect(saveTriangulationAsAct, SIGNAL(triggered()), this, SLOT(saveTriangulationAs()));
 
-    renderEPSAct = new QAction(tr("&Render EPS..."), this);
-    renderEPSAct->setShortcut(tr("Ctrl+R"));
-    renderEPSAct->setStatusTip(tr("Render the map to an EPS file"));
-    connect(renderEPSAct, SIGNAL(triggered()), this, SLOT(renderEPS()));
+    renderTriangulationEPSAct = new QAction(tr("&Render EPS..."), this);
+    renderTriangulationEPSAct->setShortcut(tr("Ctrl+R"));
+    renderTriangulationEPSAct->setStatusTip(tr("Render the map to an EPS file"));
+    renderTriangulationEPSAct->setEnabled(false);
+    connect(renderTriangulationEPSAct, SIGNAL(triggered()), this, SLOT(renderTriangulationEPS()));
 
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcuts(QKeySequence::Quit);
@@ -84,9 +80,9 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(openAct);
-    fileMenu->addAction(saveAsAct);
-    fileMenu->addAction(renderEPSAct);
+    fileMenu->addAction(openTriangulationAct);
+    fileMenu->addAction(saveTriangulationAsAct);
+    fileMenu->addAction(renderTriangulationEPSAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 }

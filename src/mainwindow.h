@@ -9,21 +9,24 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QString filename = QString());
+    MainWindow();
 
 private slots:
-    void open();
-    void saveAs();
-    void renderEPS();
+    void openTriangulation();
+    void saveTriangulationAs();
+    void renderTriangulationEPS();
 
 private:
     void createActions();
     void createMenus();
 
+    // Triangulation Editor
     RenderTriangulation *renderTriangulation;
-    QString filename;
-    QAction *openAct;
-    QAction *saveAsAct;
-    QAction *renderEPSAct;
+    QString triangulation_path;
+    QAction *openTriangulationAct;
+    QAction *saveTriangulationAsAct;
+    QAction *renderTriangulationEPSAct;
+
+    // Misc
     QAction *exitAct;
 };

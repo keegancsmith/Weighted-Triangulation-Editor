@@ -166,8 +166,10 @@ RenderTriangulation::TMapWrapper::TMapWrapper(QString path)
 }
 
 void RenderTriangulation::TMapWrapper::setMap(QString path) {
-    if (path.isEmpty())
+    if (path.isEmpty()) {
+        faces.clear();
         return;
+    }
 
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
