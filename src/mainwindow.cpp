@@ -24,6 +24,22 @@ MainWindow::MainWindow()
 
     setPointEditorMode(false);
     setTriangulationEditorMode(false);
+
+    QStringList argv = qApp->arguments();
+    if (argv.size() >= 2) {
+        QString path = argv.last();
+        if (path.endsWith(".txt", Qt::CaseInsensitive)) {
+            enableTriangulationEditor();
+            triangulation_path = path;
+            renderTriangulation->setTriangulation(path);
+        } else if (path.endsWith(".node", Qt::CaseInsensitive)) {
+            enablePointEditor();
+            point_path = path;
+            pointEditor->open(path);
+        } else {
+            qWarning() << "File with unrecognized extension passed on command line." << path;
+        }
+    }
 }
 
 void MainWindow::newPointSet()
