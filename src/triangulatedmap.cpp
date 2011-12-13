@@ -46,11 +46,13 @@ QTextStream &operator >> (QTextStream & in, TriangulatedMap & tmap) {
             (f.u.x() == f.w.x() && f.u.y() == f.w.y()) ||
             (f.v.x() == f.w.x() && f.v.y() == f.w.y()) ||
             n == 0)
-            f.weight == infinity;
+            f.weight = infinity;
 
         if (f.weight != infinity)
             tmap.faces.push_back(f);
     }
+
+    return in;
 }
 
 bool operator<(const QPointF & a, const QPointF & b) {
@@ -163,6 +165,8 @@ QTextStream &operator << (QTextStream & out, TriangulatedMap & tmap) {
             out << face.weight << '\n';
         }
     }
+
+    return out;
 }
 
 namespace CompGeom {
