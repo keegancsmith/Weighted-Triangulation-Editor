@@ -51,8 +51,10 @@ void PointEditor::open(QString path)
         if (y > ymax) ymax = y;
     }
 
-    xrange = xmax - xmin;
-    yrange = ymax - ymin;
+    actual_xmin = xmin;
+    actual_xmax = xmax;
+    actual_ymin = ymin;
+    actual_ymax = ymax;
 
     repaint();
 }
@@ -67,16 +69,45 @@ void PointEditor::save(QString path)
     out << point_set.size() << " 2 1 0\n";
 
     for (int i = 0; i < point_set.size(); i++)
-        out << (i + 1) << point_set[i].x() << ' ' << point_set[i].y() << " 1\n";
+        out << (i + 1) << ' ' << point_set[i].x() << ' ' << point_set[i].y() << " 1\n";
+}
+
+void PointEditor::setXMin(qreal val)
+{
+    if (point_set.empty() || val <= actual_xmin)
+        xmin = val;
+}
+
+void PointEditor::setXMax(qreal val)
+{
+    if (point_set.empty() || val >= actual_xmax)
+        xmax = val;
+}
+
+void PointEditor::setYMin(qreal val)
+{
+    if (point_set.empty() || val <= actual_xmax)
+        ymin = val;
+}
+
+void PointEditor::setYMax(qreal val)
+{
+    if (point_set.empty() || val >= actual_ymax)
+        ymax = val;
 }
 
 void PointEditor::paintEvent(QPaintEvent *event)
 {
-    const int margin = 5;
-    const qreal point_radius = 3;
-
     if (point_set.empty())
         return;
+
+    Q_ASSERT(xmin <= actual_xmin && actual_xmax <= xmax);
+    Q_ASSERT(ymin <= actual_ymin && actual_ymax <= ymax);
+
+    static const int margin = 5;
+    static const qreal point_radius = 3;
+    const qreal xrange = xmax - xmin;
+    const qreal yrange = ymax - ymin;
 
     qreal scale = std::min(qreal(this->width()  - margin * 2) / xrange,
                            qreal(this->height() - margin * 2) / yrange);
