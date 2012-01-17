@@ -2,12 +2,12 @@
 
 #include <QtGui>
 
-class PointEditor : public QWidget
+class RenderPointSet : public QWidget
 {
     Q_OBJECT
 
 public:
-    PointEditor(QWidget *parent = 0);
+    RenderPointSet(QWidget *parent = 0);
 
     QSize minimumSizeHint() const;
     QSize sizeHint() const;

@@ -3,7 +3,7 @@
 #include <QMainWindow>
 #include <QStackedLayout>
 
-class PointEditor;
+class RenderPointSet;
 class RenderTriangulation;
 
 class MainWindow : public QMainWindow
@@ -31,7 +31,7 @@ private:
     void setTriangulationEditorMode(bool);
 
     // Point Editor
-    PointEditor *pointEditor;
+    RenderPointSet *renderPointSet;
     QString point_path;
     QAction *newPointSetAct;
     QAction *openPointSetAct;

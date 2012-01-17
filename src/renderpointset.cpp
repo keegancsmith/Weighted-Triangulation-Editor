@@ -1,30 +1,30 @@
-#include "pointeditor.h"
+#include "renderpointset.h"
 
 #include <limits>
 
-PointEditor::PointEditor(QWidget *parent)
+RenderPointSet::RenderPointSet(QWidget *parent)
     : QWidget(parent)
 {
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);
 }
 
-QSize PointEditor::minimumSizeHint() const
+QSize RenderPointSet::minimumSizeHint() const
 {
     return QSize(100, 100);
 }
 
-QSize PointEditor::sizeHint() const
+QSize RenderPointSet::sizeHint() const
 {
     return QSize(400, 200);
 }
 
-void PointEditor::clear()
+void RenderPointSet::clear()
 {
     point_set.clear();
 }
 
-void PointEditor::open(QString path)
+void RenderPointSet::open(QString path)
 {
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -59,7 +59,7 @@ void PointEditor::open(QString path)
     repaint();
 }
 
-void PointEditor::save(QString path)
+void RenderPointSet::save(QString path)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -72,31 +72,31 @@ void PointEditor::save(QString path)
         out << (i + 1) << ' ' << point_set[i].x() << ' ' << point_set[i].y() << " 1\n";
 }
 
-void PointEditor::setXMin(qreal val)
+void RenderPointSet::setXMin(qreal val)
 {
     if (point_set.empty() || val <= actual_xmin)
         xmin = val;
 }
 
-void PointEditor::setXMax(qreal val)
+void RenderPointSet::setXMax(qreal val)
 {
     if (point_set.empty() || val >= actual_xmax)
         xmax = val;
 }
 
-void PointEditor::setYMin(qreal val)
+void RenderPointSet::setYMin(qreal val)
 {
     if (point_set.empty() || val <= actual_xmax)
         ymin = val;
 }
 
-void PointEditor::setYMax(qreal val)
+void RenderPointSet::setYMax(qreal val)
 {
     if (point_set.empty() || val >= actual_ymax)
         ymax = val;
 }
 
-void PointEditor::paintEvent(QPaintEvent *event)
+void RenderPointSet::paintEvent(QPaintEvent *event)
 {
     if (point_set.empty())
         return;
