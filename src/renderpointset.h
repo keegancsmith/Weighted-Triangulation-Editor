@@ -12,6 +12,11 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
+    qreal xMin() const { return xmin; }
+    qreal xMax() const { return xmax; }
+    qreal yMin() const { return ymin; }
+    qreal yMax() const { return ymax; }
+
 public slots:
     void clear();
     void open(QString path);
@@ -21,6 +26,9 @@ public slots:
     void setXMax(qreal val);
     void setYMin(qreal val);
     void setYMax(qreal val);
+
+signals:
+    void boundingBoxChanged();
 
 protected:
     void paintEvent(QPaintEvent *event);

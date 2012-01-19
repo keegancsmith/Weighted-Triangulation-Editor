@@ -5,6 +5,7 @@ set(wte_SOURCES
   mainwindow.cpp
   rendertriangulation.cpp
   triangulatedmap.cpp
+  pointseteditor.cpp
   renderpointset.cpp
 )
 
@@ -12,6 +13,7 @@ set(wte_HEADERS
   mainwindow.h
   rendertriangulation.h
   triangulatedmap.h
+  pointseteditor.h
   renderpointset.h
 )
 

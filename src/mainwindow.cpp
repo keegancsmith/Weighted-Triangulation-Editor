@@ -1,16 +1,16 @@
 #include <QtGui>
 
-#include "renderpointset.h"
-#include "rendertriangulation.h"
 #include "mainwindow.h"
+#include "pointseteditor.h"
+#include "rendertriangulation.h"
 
 MainWindow::MainWindow()
 {
-    renderPointSet = new RenderPointSet;
+    pointSetEditor = new PointSetEditor;
     renderTriangulation = new RenderTriangulation;
 
     stackedLayout = new QStackedLayout;
-    stackedLayout->addWidget(renderPointSet);
+    stackedLayout->addWidget(pointSetEditor);
     stackedLayout->addWidget(renderTriangulation);
 
     QWidget *centralWidget = new QWidget(this);
@@ -35,7 +35,7 @@ MainWindow::MainWindow()
         } else if (path.endsWith(".node", Qt::CaseInsensitive)) {
             enablePointEditor();
             point_path = path;
-            renderPointSet->open(path);
+            pointSetEditor->renderPointSet->open(path);
         } else {
             qWarning() << "File with unrecognized extension passed on command line." << path;
         }
@@ -44,7 +44,7 @@ MainWindow::MainWindow()
 
 void MainWindow::newPointSet()
 {
-    renderPointSet->clear();
+    pointSetEditor->renderPointSet->clear();
 }
 
 void MainWindow::openPointSet()
@@ -56,7 +56,7 @@ void MainWindow::openPointSet()
     if (!path.isEmpty()) {
         enablePointEditor();
         point_path = path;
-        renderPointSet->open(path);
+        pointSetEditor->renderPointSet->open(path);
     }
 }
 
@@ -68,7 +68,7 @@ void MainWindow::savePointSetAs()
 
     if (!path.isEmpty()) {
         point_path = path;
-        renderPointSet->save(path);
+        pointSetEditor->renderPointSet->save(path);
     }
 }
 
@@ -176,7 +176,7 @@ void MainWindow::setPointEditorMode(bool enabled)
 {
     savePointSetAsAct->setEnabled(enabled);
     if (enabled)
-        stackedLayout->setCurrentWidget(renderPointSet);
+        stackedLayout->setCurrentWidget(pointSetEditor);
 }
 
 void MainWindow::setTriangulationEditorMode(bool enabled)

@@ -56,6 +56,8 @@ void RenderPointSet::open(QString path)
     actual_ymin = ymin;
     actual_ymax = ymax;
 
+    emit boundingBoxChanged();
+
     repaint();
 }
 
@@ -74,26 +76,38 @@ void RenderPointSet::save(QString path)
 
 void RenderPointSet::setXMin(qreal val)
 {
-    if (point_set.empty() || val <= actual_xmin)
+    if ((point_set.empty() || val <= actual_xmin) && xmin != val) {
         xmin = val;
+        emit boundingBoxChanged();
+        repaint();
+    }
 }
 
 void RenderPointSet::setXMax(qreal val)
 {
-    if (point_set.empty() || val >= actual_xmax)
+    if ((point_set.empty() || val >= actual_xmax) && xmax != val) {
         xmax = val;
+        emit boundingBoxChanged();
+        repaint();
+    }
 }
 
 void RenderPointSet::setYMin(qreal val)
 {
-    if (point_set.empty() || val <= actual_xmax)
+    if ((point_set.empty() || val <= actual_ymin) && ymin != val) {
         ymin = val;
+        emit boundingBoxChanged();
+        repaint();
+    }
 }
 
 void RenderPointSet::setYMax(qreal val)
 {
-    if (point_set.empty() || val >= actual_ymax)
+    if ((point_set.empty() || val >= actual_ymax) && ymax != val) {
         ymax = val;
+        emit boundingBoxChanged();
+        repaint();
+    }
 }
 
 void RenderPointSet::paintEvent(QPaintEvent *event)
