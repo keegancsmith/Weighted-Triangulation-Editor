@@ -6,6 +6,11 @@ class RenderPointSet : public QWidget
 {
     Q_OBJECT
 
+private:
+    struct RenderInfo {
+        qreal scale, xoffset, yoffset;
+    };
+
 public:
     RenderPointSet(QWidget *parent = 0);
 
@@ -32,6 +37,10 @@ signals:
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+
+    void update_actual_boundary();
+    RenderInfo calc_render_info();
 
     QString point_set_path;
     QVector<QPointF> point_set;
