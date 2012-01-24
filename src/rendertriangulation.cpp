@@ -198,4 +198,18 @@ void RenderTriangulation::TMapWrapper::setMap(QString path) {
     }
     xrange = xmax - xmin;
     yrange = ymax - ymin;
+
+    // Output some stats on the input
+    QMap<QPointF, bool> vertices;
+    foreach(const TriangulatedMap::Face &face, faces) {
+        vertices.insert(face.u, true);
+        vertices.insert(face.v, true);
+        vertices.insert(face.w, true);
+    }
+
+    qDebug() << "max_weight =" << max_weight;
+    qDebug() << "n_faces =" << faces.size();
+    qDebug() << "n_vertices =" << vertices.size();
+    qDebug() << "xrange =" << xrange;
+    qDebug() << "yrange =" << yrange;
 }
