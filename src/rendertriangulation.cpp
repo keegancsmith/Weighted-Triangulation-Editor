@@ -45,6 +45,32 @@ int RenderTriangulation::face_at_point(QPoint pos)
     return face_containing_point(tmap_wrapper.faces, p);
 }
 
+QPointF RenderTriangulation::closest_node_to_point(QPoint pos)
+{
+    if (tmap_wrapper.faces.empty())
+        return QPointF(-1, -1);
+
+    RenderInfo ri = calc_render_info(this, widget_margin);
+    QPointF p((pos.x() - ri.xoffset) / ri.scale + tmap_wrapper.xmin,
+              (pos.y() - ri.yoffset) / ri.scale + tmap_wrapper.ymin);
+
+    QPointF closest = p;
+    qreal closest_dist2 = std::numeric_limits<qreal>::max();
+    foreach(const TriangulatedMap::Face &face, tmap_wrapper.faces) {
+        QPointF vs[3] = { face.u, face.v, face.w };
+        for (int j = 0; j < 3; j++) {
+            QPointF delta = (p - vs[j]);
+            qreal dist2 = (delta.x() * delta.x()) + (delta.y() * delta.y());
+            if (dist2 < closest_dist2) {
+                closest_dist2 = dist2;
+                closest = vs[j];
+            }
+        }
+    }
+
+    return closest;
+}
+
 bool RenderTriangulation::event(QEvent *event)
 {
     if (event->type() == QEvent::ToolTip) {
@@ -56,9 +82,14 @@ bool RenderTriangulation::event(QEvent *event)
         } else {
             if (last_tooltip_idx != -1 && last_tooltip_idx != index)
                 QToolTip::hideText();
+
+            QPointF p = closest_node_to_point(helpEvent->pos());
             qreal weight = tmap_wrapper.faces[index].weight;
             QToolTip::showText(helpEvent->globalPos(),
-                               QString("%1").arg(weight));
+                               QString("Weight: %1\nNode: (%2, %3)")
+                               .arg(weight)
+                               .arg(p.x())
+                               .arg(p.y()));
         }
         last_tooltip_idx = index;
         return true;

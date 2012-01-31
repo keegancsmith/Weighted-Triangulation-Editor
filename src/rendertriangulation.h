@@ -48,6 +48,7 @@ private:
     RenderInfo calc_render_info(QPaintDevice *device, float margin);
     void render(QPaintDevice *device, float margin);
     int face_at_point(QPoint pos);
+    QPointF closest_node_to_point(QPoint pos);
 
     TMapWrapper tmap_wrapper;
     int last_tooltip_idx;
