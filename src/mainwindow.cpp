@@ -22,7 +22,7 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
 
-    setPointEditorMode(false);
+    setPointEditorMode(true);
     setTriangulationEditorMode(false);
 
     QStringList argv = qApp->arguments();
