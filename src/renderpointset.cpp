@@ -22,6 +22,25 @@ QSize RenderPointSet::sizeHint() const
     return QSize(400, 200);
 }
 
+void RenderPointSet::addGrid(int rows, int cols)
+{
+    bool need_to_update_boundary = point_set.empty();
+
+    qreal xrange = xmax - xmin;
+    qreal yrange = ymax - ymin;
+    for (int r = 0; r < rows; r++) {
+        for (int c = 0; c < cols; c++) {
+            point_set.append(QPointF(xmin + c * (xrange / (cols - 1)),
+                                     ymin + r * (yrange / (rows - 1))));
+        }
+    }
+
+    if (need_to_update_boundary)
+        update_actual_boundary();
+
+    repaint();
+}
+
 void RenderPointSet::clear()
 {
     point_set.clear();

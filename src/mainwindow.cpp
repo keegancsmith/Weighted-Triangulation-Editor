@@ -73,6 +73,19 @@ void MainWindow::savePointSetAs()
     }
 }
 
+void MainWindow::addPointSetGrid()
+{
+    bool ok;
+    int rows = QInputDialog::getInt(this, "Add Grid", "Rows:", 10, 1, 10000, 1, &ok);
+    if (!ok)
+        return;
+    int cols = QInputDialog::getInt(this, "Add Grid", "Columns:", 10, 1, 10000, 1, &ok);
+    if (!ok)
+        return;
+
+    pointSetEditor->renderPointSet->addGrid(rows, cols);
+}
+
 void MainWindow::openTriangulation()
 {
     QString path = QFileDialog::getOpenFileName(
@@ -128,6 +141,10 @@ void MainWindow::createActions()
     savePointSetAsAct->setStatusTip(tr("Save Point Set to a file"));
     connect(savePointSetAsAct, SIGNAL(triggered()), this, SLOT(savePointSetAs()));
 
+    addPointSetGridAct = new QAction(tr("Add Point Set Grid..."), this);
+    addPointSetGridAct->setStatusTip(tr("Add a regular grid of points to the point set"));
+    connect(addPointSetGridAct, SIGNAL(triggered()), this, SLOT(addPointSetGrid()));
+
     openTriangulationAct = new QAction(tr("Open Triangulation..."), this);
     openTriangulationAct->setStatusTip(tr("Open an existing weighted triangulation file"));
     connect(openTriangulationAct, SIGNAL(triggered()), this, SLOT(openTriangulation()));
@@ -153,6 +170,7 @@ void MainWindow::createMenus()
     fileMenu->addAction(newPointSetAct);
     fileMenu->addAction(openPointSetAct);
     fileMenu->addAction(savePointSetAsAct);
+    fileMenu->addAction(addPointSetGridAct);
     fileMenu->addSeparator();
     fileMenu->addAction(openTriangulationAct);
     fileMenu->addAction(saveTriangulationAsAct);
@@ -176,6 +194,7 @@ void MainWindow::enableTriangulationEditor()
 void MainWindow::setPointEditorMode(bool enabled)
 {
     savePointSetAsAct->setEnabled(enabled);
+    addPointSetGridAct->setEnabled(enabled);
     if (enabled)
         stackedLayout->setCurrentWidget(pointSetEditor);
 }

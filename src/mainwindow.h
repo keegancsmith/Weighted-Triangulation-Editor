@@ -17,6 +17,7 @@ private slots:
     void newPointSet();
     void openPointSet();
     void savePointSetAs();
+    void addPointSetGrid();
 
     void openTriangulation();
     void saveTriangulationAs();
@@ -36,6 +37,7 @@ private:
     QAction *newPointSetAct;
     QAction *openPointSetAct;
     QAction *savePointSetAsAct;
+    QAction *addPointSetGridAct;
 
     // Triangulation Editor
     RenderTriangulation *renderTriangulation;

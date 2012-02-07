@@ -17,6 +17,8 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
+    void addGrid(int rows, int cols);
+
     qreal xMin() const { return xmin; }
     qreal xMax() const { return xmax; }
     qreal yMin() const { return ymin; }
