@@ -45,6 +45,7 @@ MainWindow::MainWindow()
 void MainWindow::newPointSet()
 {
     pointSetEditor->renderPointSet->clear();
+    enablePointEditor();
 }
 
 void MainWindow::openPointSet()
