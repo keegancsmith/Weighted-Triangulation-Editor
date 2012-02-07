@@ -146,8 +146,8 @@ QTextStream &operator << (QTextStream & out, TriangulatedMap & tmap) {
                           vertices[face.w] };
             out << vs[0] << ' ' << vs[1] << ' ' << vs[2] << ' ';
             for (int j = 0; j < 3; j++) {
-                int a = vs[j];
-                int b = vs[(j + 1) % 3];
+                int a = vs[(j + 1) % 3];
+                int b = vs[(j + 2) % 3];
                 // If we force a <= b order then the edge (a, b) is the same
                 // as (b, a) since it will be stored as (a, b)
                 if (b < a)
